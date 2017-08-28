@@ -1,0 +1,102 @@
+<div data-bind="attr: {class: 'payment-method payment-method-' + getCode()}, css: {'_active': isActive()}">
+    <div class="payment-method-title field choice">
+        <input type="radio"
+               name="payment[method]"
+               class="radio"
+               data-bind="attr: {'id': getCode()}, value: getCode(), checked: isChecked, click: selectPaymentMethod, visible: isRadioButtonVisible()"/>
+        <label class="label" data-bind="attr: {'for': getCode()}">
+            <span data-bind="text: getTitle()"></span>
+        </label>
+    </div>
+    <div class="payment-method-content">
+        <!-- ko foreach: getRegion('messages') -->
+        <!-- ko template: getTemplate() --><!-- /ko -->
+        <!--/ko-->
+        <form id="co-transparent-form-braintree" class="form" data-bind="" method="post" action="#"
+              novalidate="novalidate">
+            <div data-bind="attr: {class: 'fieldset payment items ccard ' + getCode(), id: 'payment_form_' + getCode()}">
+                <input type="hidden"
+                       name="payment[cc_type]"
+                       class="input-text"
+                       value=""
+                       data-bind="attr: {id: getCode() + '_cc_type', 'data-container': getCode() + '-cc-type'},
+                                    value: creditCardType
+                        ">
+                <div class="field number required">
+                    <div class="control iwd_opc_cc_wrapper"
+                         data-bind="attr:{'data-https': isCurrentlySecure? '1':'0', 'data-cc-type': selectedCardType}">
+                        <label class="iwd_opc_hosted_label" data-bind="attr: {'for': getCode() + '_cc_number'}">
+                            <div data-bind="attr: {id: getCode() + '_cc_number'}" class="iwd_opc_hosted_field"></div>
+                            <!--ko if: isCurrentlySecure -->
+                            <div data-icon="&#xf023" class="iwd_opc_field_tooltip iwd_opc_cc_tooltip">
+                                <div class="iwd_opc_field_tooltip_content"
+                                     data-bind="text: $t('We don\'t store or transfer your data, we rely on industry-leading third party partners to keep your information safe.')">
+                                </div>
+                            </div>
+                            <!--/ko-->
+                        </label>
+                    </div>
+                </div>
+                <div class="field required">
+                    <div class="control iwd_opc_short_fields">
+                        <label class="iwd_opc_hosted_label iwd_opc_universal_wrapper"
+                               data-bind="attr: {'for': getCode() + '_expirationMonth'}">
+                            <div data-bind="attr: {id: getCode() + '_expirationMonth'}"
+                                 class="iwd_opc_hosted_field"></div>
+                        </label>
+                        <label class="iwd_opc_hosted_label iwd_opc_universal_wrapper"
+                               data-bind="attr: {'for': getCode() + '_expirationYear'}">
+                            <div data-bind="attr: {id: getCode() + '_expirationYear'}"
+                                 class="iwd_opc_hosted_field"></div>
+                        </label>
+                    </div>
+                </div>
+                <!-- ko if: (hasVerification())-->
+                <div class="field cvv required" data-bind="attr: {id: getCode() + '_cc_type_cvv_div'}">
+                    <div class="control">
+                        <label class="iwd_opc_hosted_label" data-bind="attr: {'for': getCode() + '_cc_cid'}">
+                            <div data-bind="attr: {id: getCode() + '_cc_cid'}" class="iwd_opc_hosted_field"></div>
+                            <div data-icon="&#xf059" class="iwd_opc_field_tooltip iwd_opc_cvv_tooltip">
+                                <div class="iwd_opc_field_tooltip_content">
+                                    <!-- ko i18n: 'The 3-4 digit number typically found on the back of your card' -->
+                                    <!-- /ko -->
+                                </div>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+                <!-- /ko -->
+                <!-- ko if: (isVaultEnabled())-->
+                <div class="field choice">
+                    <input type="checkbox"
+                           name="vault[is_enabled]"
+                           class="checkbox"
+                           data-bind="attr: {'id': getCode() + '_enable_vault'}, checked: vaultEnabler.isActivePaymentTokenEnabler"/>
+                    <label class="label" data-bind="attr: {'for': getCode() + '_enable_vault'}">
+                        <span><!-- ko i18n: 'Save for later use.'--><!-- /ko --></span>
+                    </label>
+                </div>
+                <!-- /ko -->
+            </div>
+            <input type="submit" id="braintree_submit" style="display:none"/>
+        </form>
+        <div class="payment-method-billing-address">
+            <!-- ko foreach: $parent.getRegion(getBillingAddressFormName()) -->
+            <!-- ko template: getTemplate() --><!-- /ko -->
+            <!--/ko-->
+        </div>
+        <div class="actions-toolbar">
+            <div class="primary">
+                <button class="action primary checkout"
+                        type="submit"
+                        data-bind="
+                        click: placeOrderClick,
+                        attr: {title: $t('Place Order')}
+                ">
+                    <span data-bind="i18n: 'Place Order'"></span>
+                </button>
+            </div>
+        </div>
+
+    </div>
+</div>

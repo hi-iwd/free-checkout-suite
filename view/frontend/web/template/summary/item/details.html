@@ -1,0 +1,26 @@
+<div class="iwd_opc_review_item_cell">
+    <div class="iwd_opc_review_item_name" data-bind="text: $parent.name"></div>
+    <!-- ko if: (JSON.parse($parent.options).length > 0)-->
+    <div class="iwd_opc_review_item_options">
+        <!--ko foreach: JSON.parse($parent.options)-->
+        <div class="iwd_opc_review_item_option">
+            <div class="iwd_opc_review_item_option_label" data-bind="text: label+':&nbsp;'"></div>
+            <!-- ko if: ($data.full_view)-->
+            <div class="iwd_opc_review_item_option_value" data-bind="html: full_view"></div>
+            <!-- /ko -->
+            <!-- ko ifnot: ($data.full_view)-->
+            <div class="iwd_opc_review_item_option_value" data-bind="html: value"></div>
+            <!-- /ko -->
+        </div>
+        <!-- /ko -->
+    </div>
+    <!-- /ko -->
+</div>
+<!--<div class="iwd_opc_review_item_cell">-->
+<!--<div class="iwd_opc_review_item_qty" data-bind="text: '('+$parent.qty+')'"></div>-->
+<!--</div>-->
+<div class="iwd_opc_review_item_cell">
+    <!-- ko foreach: getRegion('after_details') -->
+    <!-- ko template: getTemplate() --><!-- /ko -->
+    <!-- /ko -->
+</div>

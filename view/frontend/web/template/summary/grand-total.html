@@ -1,0 +1,14 @@
+<!-- ko if: isTaxDisplayedInGrandTotal -->
+<!-- ko text: getGrandTotalExclTax() --><!-- /ko -->
+<div class="iwd_opc_review_grand_total_tax">
+    (<!-- ko text: getValue() --><!-- /ko -->)
+</div>
+<!-- /ko -->
+<!-- ko if: !isTaxDisplayedInGrandTotal -->
+<!-- ko text: getValue() --><!-- /ko -->
+<!-- /ko -->
+<!-- ko if: isBaseGrandTotalDisplayNeeded() -->
+<div class="iwd_opc_review_grand_total_base">
+    <!-- ko text: getBaseValue() --><!-- /ko -->
+</div>
+<!-- /ko -->

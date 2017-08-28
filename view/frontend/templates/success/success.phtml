@@ -1,0 +1,115 @@
+<?php
+/**
+ * @var $block \IWD\Opc\Block\Onepage\Success
+ */
+?>
+<?php
+$isShowRegistrationForm = $block->isShowRegistrationForm();
+?>
+<div class="iwd_success_page_wrapper iwd_main_wrapper">
+    <div class="iwd_opc_alternative_wrapper">
+        <div class="iwd_opc_column iwd_opc_success_page_column">
+            <div class="iwd_opc_alternative_column">
+                <div class="iwd_opc_universal_wrapper iwd_opc_column_name">
+                    <?php echo __('Order Confirmation'); ?>
+                </div>
+                <div class="iwd_opc_column_content">
+                    <div class="iwd_opc_universal_wrapper iwd_success_page_info">
+                        <?php if ($block->getOrderId()) { ?>
+                            <?php if ($block->getCanViewOrder()) { ?>
+                                <?php echo sprintf(__(
+                                    'Your order (%s) has been placed. You will receive an email with more details of your purchase.'),
+                                    sprintf(
+                                        '<a href="%s">#%s</a>',
+                                        $block->escapeHtml($block->getViewOrderUrl()),
+                                        $block->escapeHtml($block->getOrderId())
+                                    )
+                                ); ?>
+                            <?php } else { ?>
+                                <?php echo sprintf(__(
+                                    'Your order (%s) has been placed. You will receive an email with more details of your purchase.'),
+                                    '#' . $block->escapeHtml($block->getOrderId())
+                                ); ?>
+                            <?php } ?>
+                        <?php } ?>
+                        <?php echo $block->getAdditionalInfoHtml() ?>
+                    </div>
+                    <?php if ($block->getCanViewOrder() && $block->getCanPrintOrder()) : ?>
+                        <div class="iwd_opc_universal_wrapper iwd_success_page_info">
+                            <?php /* @escapeNotVerified */
+                            echo __('<a href="%1" target="_blank" class="print">Print receipt</a>', $block->getPrintUrl()) ?>
+                        </div>
+                    <?php endif; ?>
+                    <div class="iwd_opc_universal_wrapper">
+                        <a href="<?php echo $block->getUrl(); ?>"
+                           class="iwd_opc_button <?php if ($block->isCustomerLoggedIn()) { ?>active<?php } ?>"
+                           title="<?php echo __('Continue Shopping'); ?>">
+                            <?php echo __('Continue Shopping'); ?>
+                        </a>
+                    </div>
+                    <?php if ($block->isCustomerLoggedIn()) { ?>
+                        <div class="iwd_opc_universal_wrapper">
+                            <a href="<?php echo $block->getCustomerAccountUrl(); ?>"
+                               class="iwd_opc_button"
+                               title="<?php echo __('My Account'); ?>">
+                                <?php echo __('My Account'); ?>
+                            </a>
+                        </div>
+                    <?php } ?>
+                    <?php if ($isShowRegistrationForm) { ?>
+                        <div class="iwd_opc_section_delimiter"></div>
+                        <div class="iwd_opc_universal_wrapper">
+                            <button type="button"
+                                    id="iwd_success_page_account_create"
+                                    class="iwd_opc_button active"
+                                    title="<?php echo __('Create Account'); ?>">
+                                <?php echo __('Create Account'); ?>
+                            </button>
+                        </div>
+                        <div class="iwd_opc_universal_wrapper iwd_opc_success_page_create_account_info">
+                            <?php echo __('Save your shipping and payment details for your next purchase. We\'ll send instructions on how to create your account to your inbox.') ?>
+                        </div>
+                        <div class="iwd_opc_universal_wrapper iwd_opc_message" style="display:none;"></div>
+                        <script>
+                            require([
+                                'jquery', 'Magento_Ui/js/model/messageList'
+                            ], function ($, messageList) {
+                                $('body').addClass('iwd_opc_success_page');
+                                $(document).on('click', '#iwd_success_page_account_create', function () {
+                                    $('#iwd_success_page_account_create').attr('disabled', 'disabled');
+                                    $.ajax({
+                                        url: "<?php echo $block->getCreateAccountUrl(); ?>",
+                                        type: 'post',
+                                        showLoader: true,
+                                        context: $('.iwd_success_page_wrapper')
+                                    }).done(
+                                        function (response) {
+                                            $('.iwd_opc_success_page_create_account_info').hide();
+                                            if (response.errors === false) {
+                                                $('.iwd_opc_message').html('').html('<div class="iwd_opc_message_success">' + response.message + '</div>').show();
+                                            } else {
+                                                $('.iwd_opc_message').html('').html('<div class="iwd_opc_message_error">' + response.message + '</div>').show();
+                                                $('#iwd_success_page_account_create').removeAttr('disabled');
+                                            }
+                                        }
+                                    ).fail(
+                                        function (response) {
+                                            $('.iwd_opc_message').hide();
+                                            $('#iwd_success_page_account_create').removeAttr('disabled');
+                                            messageList.addErrorMessage(response);
+                                        }
+                                    );
+                                });
+                            })
+                        </script>
+                    <?php } ?>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<style type="text/css">
+    .page-title-wrapper {
+        display: none;
+    }
+</style>

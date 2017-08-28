@@ -1,0 +1,33 @@
+<div class="iwd_opc_column iwd_opc_address_column">
+    <div class="iwd_opc_alternative_column">
+        <div class="iwd_opc_universal_wrapper iwd_opc_column_name" data-bind="i18n: 'Billing Address'"></div>
+        <div tabindex="-1" class="iwd_opc_column_content">
+            <!-- ko foreach: getRegion('customer-email') -->
+            <!-- ko template: getTemplate() --><!-- /ko -->
+            <!--/ko-->
+            <!-- ko foreach: getRegion('billing-address-form') -->
+            <!-- ko template: getTemplate() --><!-- /ko -->
+            <!--/ko-->
+            <!-- ko if: isShowComment -->
+            <div class="iwd_opc_section_delimiter"></div>
+            <div class="fieldset">
+                <div class="field">
+                    <div class="control">
+                                <textarea
+                                        rows="1"
+                                        data-bind="
+                                        value: commentValue,
+                                        afterRender: textareaAutoSize,
+                                        attr: {
+                                            title: $t('Comment'),
+                                            placeholder: $t('Comment'),
+                                            id: 'comment',
+                                            name: 'comment'
+                                        }"/>
+                    </div>
+                </div>
+            </div>
+            <!-- /ko -->
+        </div>
+    </div>
+</div>

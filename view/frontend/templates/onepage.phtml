@@ -1,0 +1,64 @@
+<?php
+/**
+ * @var $block IWD\Opc\Block\Onepage
+ */
+?>
+<?php $isVirtual = $block->getQuote()->isVirtual() ?>
+<div class="iwd_opc_clear"></div>
+<div id="checkout-loader" data-role="checkout-loader" class="loading-mask" data-mage-init='{"checkoutLoader": {}}'>
+    <div class="loader"></div>
+</div>
+<div id="iwd_opc_iframe_container" class="iwd_main_wrapper iwd_opc_wrapper " style="display: none;">
+    <div class="iwd_opc_alternative_wrapper">
+        <div class="iwd_opc_column iwd_opc_iframe_payment_column">
+            <div class="iwd_opc_alternative_column">
+                <div class="iwd_opc_universal_wrapper iwd_opc_column_name">
+                    <?php echo __('Choose a Different Payment Method'); ?>
+                </div>
+                <div class="iwd_opc_column_content">
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="checkout" data-bind="scope:'checkout'"
+     class="iwd_opc_wrapper iwd_main_wrapper">
+    <div class="iwd_opc_alternative_wrapper">
+        <?php if ($isVirtual) { ?>
+        <div class="iwd_opc_two_column_wrapper">
+            <?php } ?>
+            <!-- ko template: getTemplate() --><!-- /ko -->
+            <?php if ($isVirtual) { ?>
+        </div>
+    <?php } ?>
+        <script type="text/x-magento-init">
+        {
+            "#checkout": {
+                "Magento_Ui/js/core/app": <?php /* @escapeNotVerified */
+                echo $block->getJsLayout(); ?>
+            }
+        }
+        </script>
+        <script>
+            window.checkoutConfig = <?php /* @escapeNotVerified */
+            echo \Zend_Json::encode($block->getCheckoutConfig()); ?>;
+            // Create aliases for customer.js model from customer module
+            window.isCustomerLoggedIn = window.checkoutConfig.isCustomerLoggedIn;
+            window.customerData = window.checkoutConfig.customerData;
+        </script>
+        <?php if (!$isVirtual) { ?>
+            <?php echo $block->getChildHtml('checkout.gift_options', false) ?>
+        <?php } ?>
+        <script>
+            require([
+                'mage/url',
+                'IWD_Opc/js/block-loader'
+            ], function (url, iwdBlockLoader) {
+                iwdBlockLoader();
+                return url.setBaseUrl('<?php /* @escapeNotVerified */ echo $block->getBaseUrl();?>');
+            })
+        </script>
+    </div>
+</div>
+<div class="iwd_opc_clear"></div>

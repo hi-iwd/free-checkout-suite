@@ -1,0 +1,21 @@
+<!-- ko if: (customerHasAddresses)-->
+<div class="field field-select-billing">
+    <div class="control">
+        <select class="select"
+                name="billing_address_id"
+                id="billing_address_id"
+                data-bind="
+                    options: addressOptions,
+                    optionsText: addressOptionsText,
+                    optionsAfterRender:
+                        function(option, item) {
+                            decorateSelect('billing_address_id');
+                        },
+                    value: selectedAddress,
+                    optionsValue: function(address){
+                        return address.customerAddressId;
+                    }
+            "></select>
+    </div>
+</div>
+<!-- /ko -->

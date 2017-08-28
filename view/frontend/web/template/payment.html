@@ -1,0 +1,97 @@
+<div class="iwd_opc_column iwd_opc_payment_column">
+    <div class="iwd_opc_alternative_column">
+        <div class="iwd_opc_universal_wrapper iwd_opc_column_name" data-bind="i18n: 'Payment Method'"></div>
+        <div class="iwd_opc_column_content" tabindex="-1" data-bind="iwdBlockLoader: isLoading">
+            <!-- ko if: (quoteIsVirtual) -->
+            <!-- ko foreach: getRegion('customer-email') -->
+            <!-- ko template: getTemplate() --><!-- /ko -->
+            <!--/ko-->
+            <!--/ko-->
+            <form id="co-payment-form" class="form payments" novalidate="novalidate">
+                <input data-bind='attr: {value: getFormKey()}' type="hidden" name="form_key"/>
+                <div class="fieldset">
+                    <!-- ko foreach: getRegion('beforeMethods') -->
+                    <!-- ko template: getTemplate() --><!-- /ko -->
+                    <!-- /ko -->
+
+                    <!-- ko if: isPaymentMethodsAvailable()  -->
+                    <div id="checkout-payment-method-load" class="opc-payment">
+                        <!-- ko foreach: getRegion('payment-methods-list') -->
+                        <!-- ko template: getTemplate() --><!-- /ko -->
+                        <!-- /ko -->
+                    </div>
+                    <!-- /ko -->
+
+                    <!-- ko ifnot: isPaymentMethodsAvailable()  -->
+                    <div class="field">
+                        <div class="control">
+                            <input readonly="readonly"
+                                   type="text"
+                                   tabindex="-1"
+                                   class="input-text"
+                                   data-bind="attr: {value: $t('Options Unavailable'), title: $t('Options Unavailable')}"/>
+                            <div class="iwd_opc_field_tooltip"
+                                 data-icon="&#xf059"
+                                 data-bind="css: quoteIsVirtual?'iwd_opc_payment_method_tooltip_virtual':'iwd_opc_payment_method_tooltip'">
+                                <div class="iwd_opc_field_tooltip_content">
+                                    <!-- ko if: !quoteIsVirtual -->
+                                    <!-- ko i18n: 'Make sure your shipping address is completed, and a shipping method has been selected.' -->
+                                    <!-- /ko -->
+                                    <!-- /ko -->
+                                    <!-- ko if: quoteIsVirtual -->
+                                    <!-- ko i18n: 'No Payment Methods.' --><!-- /ko -->
+                                    <!-- /ko -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- /ko -->
+                    <!-- ko foreach: getRegion('billing-address-form') -->
+                    <!-- ko template: getTemplate() --><!-- /ko -->
+                    <!-- /ko -->
+                    <div class="iwd_opc_section_delimiter"></div>
+                    <!-- ko foreach: getRegion('afterMethods') -->
+                    <!-- ko template: getTemplate() --><!-- /ko -->
+                    <!-- /ko -->
+                    <!-- ko if: getRegion('afterMethods') -->
+                    <div class="iwd_opc_section_delimiter"></div>
+                    <!-- /ko -->
+                </div>
+            </form>
+            <div class="iwd_opc_universal_wrapper">
+                <button type="button"
+                        data-bind="attr :{'title': $t('Place Order')}, click: placeOrder, enable: isPlaceOrderActionAllowed"
+                        class="iwd_opc_button active iwd_opc_place_order_button">
+                    <!-- ko i18n: 'Place Order' --><!-- /ko -->
+                </button>
+            </div>
+            <div class="iwd_opc_universal_wrapper">
+                <div id="iwd_opc_powered_by_logo">
+                    <a target="_blank"
+                       href="https://iwdagency.com/"
+                       data-bind="attr: {title: $t('built by IWD')}">
+                        <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiB2aWV3Qm94PSIwIDAgNzAgMTUiPiAgPGRlZnM+ICAgIDxzdHlsZT4gICAgICAuY2xzLTEgeyAgICAgICAgY2xpcC1wYXRoOiB1cmwoI2NsaXAtYnVpbHRfYnlfaXdkKTsgICAgICB9ICAgICAgLmNscy0yIHsgICAgICAgIGZpbGw6ICMzNDM0MzQ7ICAgICAgfSAgICAgIC5jbHMtMyB7ICAgICAgICBmaWxsOiByZ2JhKDUyLDUyLDUyLDAuOCk7ICAgICAgICBzdHJva2U6IHJnYmEoMCwwLDAsMCk7ICAgICAgfSAgICA8L3N0eWxlPiAgICA8Y2xpcFBhdGggaWQ9ImNsaXAtYnVpbHRfYnlfaXdkIj4gICAgICA8cmVjdCB3aWR0aD0iNzAiIGhlaWdodD0iMTUiLz4gICAgPC9jbGlwUGF0aD4gIDwvZGVmcz4gIDxnIGlkPSJidWlsdF9ieV9pd2QiIGRhdGEtbmFtZT0iYnVpbHQgYnkgaXdkIiBjbGFzcz0iY2xzLTEiPiAgICA8ZyBpZD0iaXdkX2JsYWNrIiB0cmFuc2Zvcm09InRyYW5zbGF0ZSgzOSAxKSI+ICAgICAgPGcgaWQ9Il9MYXllcl8iIGRhdGEtbmFtZT0iJmx0O0xheWVyJmd0OyI+ICAgICAgICA8ZWxsaXBzZSBpZD0iRWxsaXBzZV8xIiBkYXRhLW5hbWU9IkVsbGlwc2UgMSIgY2xhc3M9ImNscy0yIiBjeD0iMS4zIiBjeT0iMS4zIiByeD0iMS4zIiByeT0iMS4zIi8+ICAgICAgICA8cGF0aCBpZD0iUGF0aF8xIiBkYXRhLW5hbWU9IlBhdGggMSIgY2xhc3M9ImNscy0yIiBkPSJNNC43NTIsMjEuMTc0QTEuMywxLjMsMCwwLDEsMi42LDIwLjJWMTYuM2ExLjMsMS4zLDAsMSwwLTIuNiwwdjMuOWEzLjg1OCwzLjg1OCwwLDAsMCwuMzg1LDEuNjc3LDMuOSwzLjksMCwwLDAsMS44MzgsMS44MzgsMy44NTgsMy44NTgsMCwwLDAsMy44MTktLjI2LDQuNDQsNC40NCwwLDAsMS0xLjI4OS0yLjI4WiIgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMCAtMTEuMSkiLz4gICAgICAgIDxwYXRoIGlkPSJQYXRoXzIiIGRhdGEtbmFtZT0iUGF0aCAyIiBjbGFzcz0iY2xzLTIiIGQ9Ik0zNi43MDYsMjMuMjU3YTUuMTI5LDUuMTI5LDAsMCwxLTEuMzY3LTIuMjc3QTEuMywxLjMsMCwwLDEsMzMsMjAuMlYxNi41MjZoMFYxNi4zYTEuMywxLjMsMCwxLDAtMi42LDBoMHYyLjZoMHYxLjNhMS4zLDEuMywwLDAsMS0yLjYsMFYxNi41MjZoMFYxNi4zYTEuMywxLjMsMCwxLDAtMi42LDBoMHYyLjZoMHYxLjNhMS4zLDEuMywwLDEsMS0yLjYsMFYxNi41MjZoMFYxNi4zYTEuMywxLjMsMCwxLDAtMi42LDBoMHYyLjZoMHYxLjNhMy44ODEsMy44ODEsMCwwLDAsMSwyLjYsMy45NTMsMy45NTMsMCwwLDAsLjMuMywzLjg4MSwzLjg4MSwwLDAsMCw1LjIsMGMtLjA0OS0uMDQ0LS4xLS4xLS4xNDMtLjE0My4wNDkuMDQ3LjA5NC4xLjE0My4xNDNhMy44ODEsMy44ODEsMCwwLDAsNS4yLDBBMy44NzQsMy44NzQsMCwwLDAsMzYuNzA2LDIzLjI1N1oiIHRyYW5zZm9ybT0idHJhbnNsYXRlKC0xNC44IC0xMS4xKSIvPiAgICAgICAgPHBhdGggaWQ9IlBhdGhfMyIgZGF0YS1uYW1lPSJQYXRoIDMiIGNsYXNzPSJjbHMtMiIgZD0iTTg4LjIxNCwwYTEuMywxLjMsMCwwLDAtMS4zLDEuM1Y0LjM0NGE0LjU0Miw0LjU0MiwwLDEsMCwyLjYsNC4xMDVWMS4zQTEuMywxLjMsMCwwLDAsODguMjE0LDBabS0xLjMsOS4xNTFhMS45NiwxLjk2LDAsMSwxLC4xMy0uN0EyLjA4LDIuMDgsMCwwLDEsODYuOTE0LDkuMTUxWiIgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoLTU5LjUyKSIvPiAgICAgIDwvZz4gICAgPC9nPiAgICA8cGF0aCBpZD0iUGF0aF80IiBkYXRhLW5hbWU9IlBhdGggNCIgY2xhc3M9ImNscy0zIiBkPSJNMy4zNS01LjQzOWExLjk5LDEuOTksMCwwLDEsMS42MzguNzIsMy4xNjEsMy4xNjEsMCwwLDEsLjU4MywyLjAzOUEzLjE4NCwzLjE4NCwwLDAsMSw0Ljk4My0uNjMyLDEuOTgxLDEuOTgxLDAsMCwxLDMuMzUuMSwyLjMxNiwyLjMxNiwwLDAsMSwyLjQtLjEsMS44LDEuOCwwLDAsMSwxLjY3LS42ODhIMS42MTFMMS40NCwwSC44NTlWLTcuNkgxLjY3djEuODQ2cTAsLjYyLS4wMzksMS4xMTNIMS42N0ExLjkyNCwxLjkyNCwwLDAsMSwzLjM1LTUuNDM5Wm0tLjExNy42NzlhMS40MTUsMS40MTUsMCwwLDAtMS4yLjQ3NiwyLjY4NSwyLjY4NSwwLDAsMC0uMzY2LDEuNiwyLjY3OCwyLjY3OCwwLDAsMCwuMzc2LDEuNjE0LDEuNDMsMS40MywwLDAsMCwxLjIwNi40ODYsMS4yNSwxLjI1LDAsMCwwLDEuMTEzLS41NDRBMi44LDIuOCwwLDAsMCw0LjczMS0yLjY5YTIuNjg5LDIuNjg5LDAsMCwwLS4zNjYtMS41NThBMS4zLDEuMywwLDAsMCwzLjIzMi00Ljc2MVptNC41MTctLjU5MVYtMS44OGExLjQsMS40LDAsMCwwLC4zLjk3NywxLjIxMywxLjIxMywwLDAsMCwuOTMzLjMyMiwxLjUyMiwxLjUyMiwwLDAsMCwxLjIyOC0uNDU5LDIuMzE1LDIuMzE1LDAsMCwwLC4zODgtMS41Vi01LjM1MmguODExVjBoLS42NjlMMTAuNjItLjcxOGgtLjA0NGExLjYxNiwxLjYxNiwwLDAsMS0uNjkxLjYwNUEyLjMyMiwyLjMyMiwwLDAsMSw4Ljg3Ny4xLDIuMDQ2LDIuMDQ2LDAsMCwxLDcuNDE1LS4zNjZhMS45NzUsMS45NzUsMCwwLDEtLjQ4Ni0xLjQ4NHYtMy41Wk0xMy45MzYsMGgtLjgxMVYtNS4zNTJoLjgxMVptLS44NzktNi44YS41MzguNTM4LDAsMCwxLC4xMzctLjQwOC40NzguNDc4LDAsMCwxLC4zNDItLjEyOS40NzguNDc4LDAsMCwxLC4zMzcuMTMyLjUyOS41MjksMCwwLDEsLjE0Mi40MDUuNTM3LjUzNywwLDAsMS0uMTQyLjQwOC40NzMuNDczLDAsMCwxLS4zMzcuMTM0LjQ2OC40NjgsMCwwLDEtLjM0Mi0uMTM0QS41NDguNTQ4LDAsMCwxLDEzLjA1Ny02LjhaTTE2LjQ2NSwwaC0uODExVi03LjZoLjgxMVptMy40NDctLjU3MUEyLjY0OCwyLjY0OCwwLDAsMCwyMC4zMjctLjZhMi42ODcsMi42ODcsMCwwLDAsLjMxNy0uMDY2di42MmExLjQ4MiwxLjQ4MiwwLDAsMS0uMzg4LjFBMi45MTUsMi45MTUsMCwwLDEsMTkuNzk1LjFxLTEuNTUzLDAtMS41NTMtMS42MzZWLTQuNzIyaC0uNzY3di0uMzkxbC43NjctLjMzNy4zNDItMS4xNDNoLjQ2OXYxLjI0aDEuNTUzdi42M0gxOS4wNTN2My4xNDlhMS4wODMsMS4wODMsMCwwLDAsLjIyOS43NDJBLjguOCwwLDAsMCwxOS45MTItLjU3MVpNMjYuOC01LjQzOWExLjk5LDEuOTksMCwwLDEsMS42MzguNzIsMy4xNjEsMy4xNjEsMCwwLDEsLjU4MywyLjAzOSwzLjE4NCwzLjE4NCwwLDAsMS0uNTg4LDIuMDQ4QTEuOTgxLDEuOTgxLDAsMCwxLDI2LjguMSwyLjMxNiwyLjMxNiwwLDAsMSwyNS44NDctLjFhMS44LDEuOCwwLDAsMS0uNzI1LS41OTNoLS4wNTlMMjQuODkzLDBoLS41ODFWLTcuNmguODExdjEuODQ2cTAsLjYyLS4wMzksMS4xMTNoLjAzOUExLjkyNCwxLjkyNCwwLDAsMSwyNi44LTUuNDM5Wm0tLjExNy42NzlhMS40MTUsMS40MTUsMCwwLDAtMS4yLjQ3NiwyLjY4NSwyLjY4NSwwLDAsMC0uMzY2LDEuNkEyLjY3OCwyLjY3OCwwLDAsMCwyNS41LTEuMDY3LDEuNDMsMS40MywwLDAsMCwyNi43LS41ODFhMS4yNSwxLjI1LDAsMCwwLDEuMTEzLS41NDQsMi44LDIuOCwwLDAsMCwuMzY2LTEuNTY1LDIuNjg5LDIuNjg5LDAsMCwwLS4zNjYtMS41NThBMS4zLDEuMywwLDAsMCwyNi42ODUtNC43NjFabTIuNzA1LS41OTFoLjg2OUwzMS40MzEtMi4zYTExLjYwOCwxMS42MDgsMCwwLDEsLjQ3OSwxLjUwOWguMDM5cS4wNjMtLjI0OS4yNjYtLjg1MlQzMy41NC01LjM1MmguODY5TDMyLjEwOS43NDJhMy4wNCwzLjA0LDAsMCwxLS44LDEuMjgyQTEuNywxLjcsMCwwLDEsMzAuMTksMi40YTMuMjYxLDMuMjYxLDAsMCwxLS43MzItLjA4M1YxLjY3YTIuODI1LDIuODI1LDAsMCwwLC42LjA1OUExLjIzOCwxLjIzOCwwLDAsMCwzMS4yNS43OTFsLjMtLjc2MloiIHRyYW5zZm9ybT0idHJhbnNsYXRlKDAgMTIpIi8+ICA8L2c+PC9zdmc+"/>
+                    </a>
+                </div>
+            </div>
+            <!-- ko if: isShowSubscribe -->
+            <div class="fieldset">
+                <div class="field choice">
+                    <input type="checkbox" name="subscribe"
+                           data-bind="
+                       checked: isSubscribe,
+                       attr: {
+                            id: 'subscribe'
+                       }"/>
+                    <label data-bind="attr: {for: 'subscribe'}">
+                        <span data-bind="i18n: 'Sign Up For Newsletter'"></span>
+                    </label>
+                </div>
+            </div>
+            <!-- /ko -->
+            <!-- ko foreach: getRegion('before-place-order') -->
+            <!-- ko template: getTemplate() --><!-- /ko -->
+            <!-- /ko -->
+        </div>
+    </div>
+</div>

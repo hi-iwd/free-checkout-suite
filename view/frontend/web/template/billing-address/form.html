@@ -1,0 +1,22 @@
+<form class="form billing-address-form co-billing-form" data-bind="visible: isAddressFormVisible">
+    <!-- ko if: customerHasAddresses -->
+    <div class="iwd_opc_section_delimiter"></div>
+    <!--/ko-->
+    <!-- ko foreach: getRegion('before-fields') -->
+    <!-- ko template: getTemplate() --><!-- /ko -->
+    <!--/ko-->
+    <div id="billing-new-address-form" class="fieldset address">
+        <!-- ko foreach: getRegion('additional-fieldsets') -->
+        <!-- ko template: getTemplate() --><!-- /ko -->
+        <!--/ko-->
+        <!-- ko if: (isCustomerLoggedIn) -->
+        <div class="choice field">
+            <input type="checkbox" class="checkbox" id="billing-save-in-address-book"
+                   data-bind="checked: saveInAddressBook"/>
+            <label class="label" for="billing-save-in-address-book">
+                <span data-bind="i18n: 'Save in address book'"></span>
+            </label>
+        </div>
+        <!-- /ko -->
+    </div>
+</form>
