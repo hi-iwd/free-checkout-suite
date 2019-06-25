@@ -41,6 +41,7 @@ define(
 
         var observedElements = [],
             setBillingActionTimeout = 0,
+            inlineAddress = "",
             newAddressOption = {
                 /**
                  * Get new address label
@@ -53,7 +54,9 @@ define(
             },
             countryData = customerData.get('directory-data'),
             addressOptions = addressList().filter(function (address) {
-                return address.getType() === 'customer-address';
+                var isDublicate = inlineAddress === address.getAddressInline();
+                inlineAddress = address.getAddressInline();
+                return address.getType() === 'customer-address' && !isDublicate;
             });
 
         addressOptions.push(newAddressOption);
@@ -71,7 +74,7 @@ define(
             quoteIsVirtual: quote.isVirtual(),
             isAddressFormVisible: ko.observable((addressList().length === 0 || (checkoutData.getSelectedBillingAddress() === 'new-customer-address' && !!checkoutData.getNewCustomerBillingAddress()))),
             isAddressSameAsShipping: ko.observable(!checkoutData.getSelectedBillingAddress()),
-            saveInAddressBook: 1,
+            saveInAddressBook: ko.observable(true),
             canUseShippingAddress: ko.computed(function () {
                 return !quote.isVirtual() && quote.shippingAddress() && quote.shippingAddress().canUseForBilling();
             }),
@@ -80,12 +83,13 @@ define(
             validateAddressTimeout: 0,
             validateDelay: 1400,
 
-            decorateSelect: function (uid) {
+            decorateSelect: function (uid, showEmptyOption) {
+                if (typeof showEmptyOption === 'undefined') { showEmptyOption = false; }
                 clearTimeout(this.optionsRenderCallback);
                 this.optionsRenderCallback = setTimeout(function () {
                     var select = $('#' + uid);
                     if (select.length) {
-                        select.decorateSelect();
+                        select.decorateSelect(showEmptyOption, true);
                     }
                 }, 0);
             },
@@ -96,6 +100,9 @@ define(
              */
             getCode: function (parent) {
                 return (parent && _.isFunction(parent.getCode)) ? parent.getCode() : 'shared';
+            },
+            getNameForSelect: function () {
+                return this.name.replace(/\./g, '');
             },
             getCountryName: function (countryId) {
                 return countryData()[countryId] !== undefined ? countryData()[countryId].name : '';
@@ -124,17 +131,39 @@ define(
                         billingAddress.saveInAddressBook = 0;
                         billingAddress.save_in_address_book = 0;
                         selectBillingAddress(billingAddress);
-                        self.source.set(self.dataScopePrefix, addressConverter.quoteAddressToFormAddressData(billingAddress));
+                        var origAddress = self.source.get(self.dataScopePrefix),
+                            convertedAddress = addressConverter.quoteAddressToFormAddressData(billingAddress);
+
+                        $.each(origAddress, function(key, val) {
+                            if (key === 'street') {
+                                if (typeof convertedAddress[key] === 'undefined') {
+                                    convertedAddress[key] = {};
+                                }
+
+                                $.each(origAddress[key], function(streetKey, streetVal) {
+                                    if (typeof streetVal !== 'undefined' && typeof convertedAddress[key][streetKey] === 'undefined') {
+                                        convertedAddress[key][streetKey] = '';
+                                    }
+                                });
+                            } else if (typeof val !== 'undefined' && typeof convertedAddress[key] === 'undefined') {
+                                convertedAddress[key] = '';
+                            }
+                        });
+
+                        self.source.set(self.dataScopePrefix, convertedAddress);
                     }
                 });
 
                 quote.billingAddress.subscribe(function (address) {
                     if (address.customerAddressId) {
                         self.selectedAddress(address.customerAddressId);
-                        setTimeout(function () {
-                            $('#billing_address_id').change();
-                        }, 0);
+                    } else {
+                        self.selectedAddress('');
                     }
+
+                    setTimeout(function () {
+                        $('select[name=billing_address_id]').change();
+                    }, 0);
                 });
 
                 self.isAddressSameAsShipping.subscribe(function (value) {
@@ -145,20 +174,27 @@ define(
 
                 if (addressList().length !== 0) {
                     this.selectedAddress.subscribe(function (addressId) {
+                        if (!addressId) { addressId = null; }
                         if (!self.isAddressSameAsShipping()) {
                             var address = _.filter(self.addressOptions, function (address) {
                                 return address.customerAddressId === addressId;
                             })[0];
 
                             self.isAddressFormVisible(address === newAddressOption);
-                            if (address.customerAddressId) {
+                            if (address && address.customerAddressId) {
                                 selectBillingAddress(address);
                                 checkoutData.setSelectedBillingAddress(address.getKey());
                             } else {
                                 var addressData,
                                     newBillingAddress;
+                                var countrySelect = $('.co-billing-form:visible').first().find('select[name="country_id"]');
+                                if (countrySelect.length) {
+                                    var initialVal = countrySelect.val();
+                                    countrySelect.val('').trigger('change').val(initialVal).trigger('change');
+                                }
+
                                 addressData = self.source.get(self.dataScopePrefix);
-                                addressData.save_in_address_book = self.saveInAddressBook && !self.isAddressSameAsShipping() ? 1 : 0;
+                                addressData.save_in_address_book = self.saveInAddressBook() && !self.isAddressSameAsShipping() ? 1 : 0;
                                 newBillingAddress = createBillingAddress(addressData);
                                 selectBillingAddress(newBillingAddress);
                                 checkoutData.setSelectedBillingAddress(newBillingAddress.getKey());
@@ -311,11 +347,11 @@ define(
                     var addressData = this.source.get(this.dataScopePrefix),
                         newBillingAddress;
 
-                    if (customer.isLoggedIn() && !this.customerHasAddresses && !self.isAddressSameAsShipping()) {
-                        this.saveInAddressBook = 1;
-                    }
+                    // if (customer.isLoggedIn() && !this.customerHasAddresses && !self.isAddressSameAsShipping()) {
+                    //     this.saveInAddressBook = 1;
+                    // }
 
-                    addressData['save_in_address_book'] = this.saveInAddressBook && !self.isAddressSameAsShipping() ? 1 : 0;
+                    addressData['save_in_address_book'] = this.saveInAddressBook() && !self.isAddressSameAsShipping() ? 1 : 0;
                     newBillingAddress = createBillingAddress(addressData);
 
                     selectBillingAddress(newBillingAddress);

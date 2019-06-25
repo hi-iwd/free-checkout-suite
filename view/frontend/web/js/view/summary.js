@@ -3,7 +3,8 @@ define(
         'jquery',
         'ko',
         'uiComponent',
-        'Magento_Checkout/js/model/totals'
+        'Magento_Checkout/js/model/totals',
+        'iwdOpcHelper'
     ],
     function ($, ko, Component, totals) {
         'use strict';

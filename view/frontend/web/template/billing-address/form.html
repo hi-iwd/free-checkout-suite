@@ -12,8 +12,10 @@
         <!-- ko if: (isCustomerLoggedIn) -->
         <div class="choice field">
             <input type="checkbox" class="checkbox" id="billing-save-in-address-book"
-                   data-bind="checked: saveInAddressBook"/>
-            <label class="label" for="billing-save-in-address-book">
+                   data-bind="checked: saveInAddressBook,
+                   attr: {id: 'billing-save-in-address-book-' + index}"/>
+            <label class="label" for="billing-save-in-address-book"
+                   data-bind="attr: {for: 'billing-save-in-address-book-' + index}">
                 <span data-bind="i18n: 'Save in address book'"></span>
             </label>
         </div>

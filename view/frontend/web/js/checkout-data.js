@@ -15,19 +15,28 @@ define([
         storage.set(cacheKey, checkoutData);
     };
 
-    if ($.isEmptyObject(getData())) {
-        var checkoutData = {
-            'selectedShippingAddress': null,
-            'shippingAddressFromData': null,
-            'newCustomerShippingAddress': null,
-            'selectedShippingRate': null,
-            'selectedPaymentMethod': null,
-            'selectedBillingAddress': null,
-            'billingAddressFormData': null,
-            'newCustomerBillingAddress': null
-        };
-        saveData(checkoutData);
-    }
+    /**
+     * @return {*}
+     */
+    getData = function () {
+        var data = storage.get(cacheKey)();
+
+        if ($.isEmptyObject(data)) {
+            data = {
+                'selectedShippingAddress': null,
+                'shippingAddressFromData': null,
+                'newCustomerShippingAddress': null,
+                'selectedShippingRate': null,
+                'selectedPaymentMethod': null,
+                'selectedBillingAddress': null,
+                'billingAddressFormData': null,
+                'newCustomerBillingAddress': null
+            };
+            saveData(data);
+        }
+
+        return data;
+    };
 
     return {
         setNeedEstimateShippingRates:function (data) {
@@ -177,6 +186,29 @@ define([
 
         getIsPasswordVisible: function () {
             return getData().isPasswordVisible;
+        },
+
+        /**
+         * Pulling the checked email value from persistence storage
+         *
+         * @return {*}
+         */
+        getCheckedEmailValue: function () {
+            var obj = getData();
+
+            return obj.checkedEmailValue ? obj.checkedEmailValue : '';
+        },
+
+        /**
+         * Setting the checked email value pulled from persistence storage
+         *
+         * @param {String} email
+         */
+        setCheckedEmailValue: function (email) {
+            var obj = getData();
+
+            obj.checkedEmailValue = email;
+            saveData(obj);
         }
     }
 });

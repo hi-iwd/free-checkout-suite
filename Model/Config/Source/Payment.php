@@ -10,6 +10,24 @@ class Payment extends Allmethods
     {
         $options = parent::toOptionArray();
         array_unshift($options, ['value' => '', 'label' => '-- Please select a payment method --']);
+
+        return $this->_filterOptions($options);
+    }
+
+    /**
+     * Filter empty payment groups without values
+     *
+     * @param array $options
+     * @return array
+     */
+    protected function _filterOptions(array $options)
+    {
+        foreach ($options as $k => $option) {
+            if (!isset($option['value'])) {
+                unset($options[$k]);
+            }
+        }
+
         return $options;
     }
 }

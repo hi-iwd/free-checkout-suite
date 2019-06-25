@@ -76,7 +76,7 @@
                     <source_model>IWD\Opc\Model\Config\Source\Shipping</source_model>
                 </field>
                 <field id="default_payment_method" translate="label" type="select"
-                       sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                    sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Default Payment Method</label>
                     <source_model>IWD\Opc\Model\Config\Source\Payment</source_model>
                 </field>
@@ -90,26 +90,22 @@
                     <label>Assign order to customer if customer were not logged in (by email)?</label>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                 </field>
-                <field id="reload_shipping_methods_on_discount" translate="label" type="select"
+                <field id="reload_shipping_methods_on_discount" translate="label comment" type="select"
                        sortOrder="13" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Reload shipping methods during applying/removing discount?</label>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-                    <comment>If yes, then shipping methods will be reloaded when customer will applies/removes discount on checkout page.
-                        You should enable it if you offer discounts which make shipping free.</comment>
+                    <comment><![CDATA[If yes, then shipping methods will be reloaded when customer will applies/removes discount on checkout page. You should enable it if you offer discounts which make shipping free.]]></comment>
                 </field>
-            </group>
-            <group id="restrict_payment" translate="label" type="text"
-                   sortOrder="3" showInDefault="1" showInWebsite="1" showInStore="1">
-                <label>Restrict Payment Methods by customer groups</label>
-                <field id="enable" translate="label" type="select"
-                       sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Enable?</label>
+                <field id="use_iwd_checkout_experience" translate="label comment" type="select"
+                       sortOrder="14" showInDefault="1" showInWebsite="1" showInStore="1">
+                       <label>Use IWD's Guest Checkout Experience</label>
+                       <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                       <comment><![CDATA[If "Yes", then guests may checkout even if Magento's Guest Checkout setting is disabled. If "No", then users will be forced to create an account to checkout. Setting this as no, may affect your conversion rate.]]></comment>
+                </field>
+                <field id="show_all_ship_methods" translate="label" type="select"
+                       sortOrder="15" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Show All shipping methods in one select-box?</label>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-                </field>
-                <field id="methods" translate="label" type="select"
-                       sortOrder="2" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <frontend_model>IWD\Opc\Block\Adminhtml\System\Config\RestrictPayment</frontend_model>
-                    <backend_model>IWD\Opc\Model\Config\Backend\RestrictPayment</backend_model>
                 </field>
             </group>
         </section>

@@ -17,27 +17,34 @@ define(
              * @returns {boolean}
              */
             validate: function () {
-                if (!agreementsConfig.isEnabled) {
+                var isValid = true;
+
+                if (!agreementsConfig.isEnabled || $(agreementsInputPath).length === 0) {
                     return true;
                 }
 
-                if ($(agreementsInputPath).length === 0) {
-                    return true;
-                }
+                $(agreementsInputPath).each(function (index, element) {
+                    $(element).parent().children('div.mage-error[generated]').remove();
 
-                return $('#co-agreements-form').validate({
-                    errorClass: 'mage-error',
-                    errorElement: 'div',
-                    meta: 'validate',
-                    errorPlacement: function (error, element) {
-                        var errorPlacement = element;
-                        if (element.is(':checkbox') || element.is(':radio')) {
-                            errorPlacement = element.siblings('label').last();
-                        }
-                        errorPlacement.after(error);
+                    if (!$.validator.validateSingleElement(element, {
+                            errorClass: 'mage-error',
+                            errorElement: 'div',
+                            meta: 'validate',
+                            errorPlacement: function (error, element) {
+                                var errorPlacement = element;
+                                if (element.is(':checkbox') || element.is(':radio')) {
+                                    errorPlacement = element.siblings('label').last();
+                                }
+                                errorPlacement.after(error);
+                            }
+                        })) {
+
+                        isValid = false;
                     }
-                }).element(agreementsInputPath);
+                });
+
+                return isValid;
             }
-        }
+        };
     }
 );

@@ -17,10 +17,9 @@
                 <payment_title_type>logo_title</payment_title_type>
                 <assign_order>1</assign_order>
                 <reload_shipping_methods_on_discount>0</reload_shipping_methods_on_discount>
+                <use_iwd_checkout_experience>1</use_iwd_checkout_experience>
+                <show_all_ship_methods>0</show_all_ship_methods>
             </extended>
-            <restrict_payment>
-                <enable>0</enable>
-            </restrict_payment>
         </iwd_opc>
     </default>
 </config>

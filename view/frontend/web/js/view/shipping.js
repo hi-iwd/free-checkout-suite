@@ -50,13 +50,16 @@ define(
               paymentIsLoading) {
         'use strict';
 
-        var newAddressOption = {
+        var inlineAddress = "",
+            newAddressOption = {
             getAddressInline: function () {
                 return $t('New Address');
             },
             customerAddressId: null
         }, addressOptions = addressList().filter(function (address) {
-            return address.getType() === 'customer-address';
+            var isDublicate = inlineAddress === address.getAddressInline();
+                inlineAddress = address.getAddressInline();
+            return address.getType() === 'customer-address' && !isDublicate;
         });
         addressOptions.push(newAddressOption);
 
@@ -76,6 +79,8 @@ define(
             saveInAddressBook: 1,
             addressOptions: addressOptions,
             selectedAddress: ko.observable(),
+            displayAllMethods: window.checkoutConfig.iwdOpcSettings.displayAllMethods,
+            specificMethodsForDisplayAllMethods: ['iwdstorepickup'],
 
             quoteIsVirtual: quote.isVirtual(),
 
@@ -122,11 +127,12 @@ define(
 
                 if (addressList().length !== 0) {
                     this.selectedAddress.subscribe(function (addressId) {
+                        if (typeof addressId === 'undefined' || addressId === '') { addressId = null; }
                         var address = _.filter(self.addressOptions, function (address) {
                             return address.customerAddressId === addressId;
                         })[0];
                         self.isAddressFormVisible(address === newAddressOption);
-                        if (address.customerAddressId) {
+                        if (address && address.customerAddressId) {
                             if (quote.shippingAddress() && quote.shippingAddress().getKey() === address.getKey()) {
                                 return;
                             }
@@ -157,7 +163,8 @@ define(
                 quote.shippingMethod.subscribe(function (shippingMethod) {
                     clearTimeout(setShippingInformationTimeout);
                     if (shippingMethod) {
-                        self.shippingRateGroup(shippingMethod.carrier_title);
+                        var carrierTitle = self.formatCarrierTitle(shippingMethod);
+                        self.shippingRateGroup(carrierTitle);
                         self.shippingRate(shippingMethod.carrier_code + '_' + shippingMethod.method_code);
                     } else {
                         self.shippingRateGroup('');
@@ -194,7 +201,7 @@ define(
 
                     _.each(rates, function (rate) {
                         if (rate) {
-                            var carrierTitle = rate['carrier_title'];
+                            var carrierTitle = self.formatCarrierTitle(rate);
                             if (rate.error_message || !rate.method_code) {
                                 self.rates.remove(rate);
                             }
@@ -208,10 +215,15 @@ define(
                 });
 
                 this.shippingRateGroup.subscribe(function (carrierTitle) {
+                    if (carrierTitle == '') {
+                        return;
+                    }
+
                     self.shippingRates([]);
                     var ratesByGroup = _.filter(self.rates(), function (rate) {
-                        return carrierTitle === rate['carrier_title'];
+                        return carrierTitle === self.formatCarrierTitle(rate);
                     });
+
                     if (ratesByGroup.length === 0) {
                         self.selectShippingMethod('');
                     }
@@ -222,16 +234,44 @@ define(
                         self.shippingRatesCaption(null);
                     }
 
+                    var $selectize = $('#iwd_opc_shipping_method_rates').length
+                        ? $('#iwd_opc_shipping_method_rates')[0].selectize
+                        : false;
+
+                    if ($selectize) {
+                        $selectize.loadedSearches = {};
+                        $selectize.userOptions = {};
+                        $selectize.renderCache = {};
+                        $selectize.options = $selectize.sifter.items = {};
+                        $selectize.lastQuery = null;
+                        $selectize.updateOriginalInput({silent: true});
+                    }
+
                     _.each(ratesByGroup, function (rate) {
                         if (self.shippingRates.indexOf(rate) === -1) {
                             rate = self.formatShippingRatePrice(rate);
                             self.shippingRates.push(rate);
+
+                            if (rate.available && $selectize) {
+                                $selectize.addOption({text: self.shippingRateTitle(rate), value: rate.carrier_code + '_' + rate.method_code})
+                            }
                         }
                     });
+
+                    if ($selectize) {
+                        $selectize.refreshOptions(false);
+                        $selectize.refreshItems();
+
+                        if (ratesByGroup.length) {
+                            $selectize.addItem(ratesByGroup[0].carrier_code + '_' + ratesByGroup[0].method_code);
+                        }
+                    }
                 });
 
                 this.shippingRates.subscribe(function (rate) {
-                    if (self.shippingRates().length) {
+                    var minLength = (self.displayAllMethods) ? 1 : 0;
+
+                    if (self.shippingRates().length > minLength) {
                         self.isShippingRatesVisible(true);
                     } else {
                         self.isShippingRatesVisible(false);
@@ -251,7 +291,7 @@ define(
                 this.optionsRenderCallback[uid] = setTimeout(function () {
                     var select = $('#' + uid);
                     if (select.length) {
-                        select.decorateSelect();
+                        select.decorateSelectCustom();
                     }
                 }, 0);
             },
@@ -332,7 +372,28 @@ define(
                 }
 
                 title += rate.method_title;
+
                 return title;
+            },
+
+            shippingRateTitleFull: function(rate) {
+                var title = this.shippingRateTitle(rate);
+                if (rate.carrier_title) {
+                    title += ': ' + rate.carrier_title;
+                }
+
+                return title;
+            },
+
+            formatCarrierTitle: function (rate) {
+                var carrierTitle = rate['carrier_title'];
+
+                if (this.displayAllMethods && this.specificMethodsForDisplayAllMethods.indexOf(rate.carrier_code)) {
+                    rate = this.formatShippingRatePrice(rate);
+                    carrierTitle = this.shippingRateTitleFull(rate);
+                }
+
+                return carrierTitle
             },
 
             addressOptionsText: function (address) {
@@ -366,13 +427,20 @@ define(
                     emailValidationResult = customer.isLoggedIn(),
                     shippingMethodValidationResult = true;
                 showErrors = showErrors || false;
-                var shippingMethodForm = $('#co-shipping-method-form');
+                var shippingMethodForm = $('#co-shipping-method-form'),
+                    shippingMethodSelectors = shippingMethodForm.find('.select');
+                shippingMethodSelectors.removeClass('mage-error');
                 shippingMethodForm.validate({
                     errorClass: 'mage-error',
                     errorElement: 'div',
                     meta: 'validate'
                 });
                 shippingMethodForm.validation();
+                //additional validation for non-selected shippingMethod
+                if(showErrors && !quote.shippingMethod()) {
+                    shippingMethodSelectors.addClass('mage-error');
+                }
+
                 if (!shippingMethodForm.validation('isValid') || !quote.shippingMethod()) {
                     if (!showErrors && this.canHideErrors && shippingMethodForm.length) {
                         shippingMethodForm.validate().resetForm();

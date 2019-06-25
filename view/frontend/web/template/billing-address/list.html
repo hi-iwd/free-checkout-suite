@@ -3,13 +3,13 @@
     <div class="control">
         <select class="select"
                 name="billing_address_id"
-                id="billing_address_id"
                 data-bind="
+                    attr:{'id': getNameForSelect()+'billing_address_id'},
                     options: addressOptions,
                     optionsText: addressOptionsText,
                     optionsAfterRender:
                         function(option, item) {
-                            decorateSelect('billing_address_id');
+                            decorateSelect(getNameForSelect()+'billing_address_id', true);
                         },
                     value: selectedAddress,
                     optionsValue: function(address){

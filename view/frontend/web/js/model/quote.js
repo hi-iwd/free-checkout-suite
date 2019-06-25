@@ -13,6 +13,7 @@ define(
         var totalsData = window.checkoutConfig.totalsData;
         var totals = ko.observable(totalsData);
         var collectedTotals = ko.observable({});
+        var opcConfig = window.checkoutConfig.iwdOpcSettings;
         return {
             totals: totals,
             shippingAddress: shippingAddress,
@@ -20,7 +21,6 @@ define(
             billingAddress: billingAddress,
             paymentMethod: paymentMethod,
             guestEmail: null,
-
             isCustomerLoggedIn: function () {
                 return window.checkoutConfig.isCustomerLoggedIn;
             },
@@ -28,58 +28,54 @@ define(
                 return quoteData.customer_group_id;
             },
             getPaymentTitleType: function () {
-                return window.checkoutConfig.iwdOpcSettings.paymentTitleType;
+                return opcConfig ? opcConfig.paymentTitleType : undefined;
             },
             getPaymentImagePath: function (type) {
-                return window.checkoutConfig.iwdOpcSettings.paymentLogosImages[type];
-            },
-            isRestrictPaymentEnable: function () {
-                return window.checkoutConfig.iwdOpcSettings.isRestrictPaymentEnable;
-            },
-            getRestrictedPaymentMethods: function () {
-                return window.checkoutConfig.iwdOpcSettings.restrictedPaymentMethods;
+                return opcConfig ? opcConfig.paymentLogosImages[type] : undefined;
             },
             getDefaultShippingMethod: function () {
-                return window.checkoutConfig.iwdOpcSettings.defaultShippingMethod;
+                return opcConfig ? opcConfig.defaultShippingMethod : undefined;
             },
             getDefaultPaymentMethod: function () {
-                return window.checkoutConfig.iwdOpcSettings.defaultPaymentMethod;
+                return opcConfig ? opcConfig.defaultPaymentMethod : undefined;
             },
             getSelectedShippingMethod: function () {
                 return window.checkoutConfig.selectedShippingMethod;
             },
             setDefaultShippingMethod: function (defaultShippingMethod) {
-                window.checkoutConfig.iwdOpcSettings.defaultShippingMethod = defaultShippingMethod;
+                if(opcConfig) {
+                    opcConfig.defaultShippingMethod = defaultShippingMethod;
+                }
             },
             setSelectedShippingMethod: function (selectedShippingMethod) {
                 return window.checkoutConfig.selectedShippingMethod = selectedShippingMethod;
             },
             getLogoutUrl: function () {
-                return window.checkoutConfig.iwdOpcSettings.logoutUrl;
+                return opcConfig ? opcConfig.logoutUrl : undefined;
             },
             getForgotPasswordUrl: function () {
-                return window.checkoutConfig.iwdOpcSettings.forgotPasswordUrl;
+                return opcConfig ? opcConfig.forgotPasswordUrl : undefined;
             },
             isShowLoginButton: function () {
-                return window.checkoutConfig.iwdOpcSettings.isShowLoginButton;
+                return opcConfig ? opcConfig.isShowLoginButton : undefined;
             },
             isShowGiftMessage: function () {
-                return window.checkoutConfig.iwdOpcSettings.isShowGiftMessage;
+                return opcConfig ? opcConfig.isShowGiftMessage : undefined;
             },
             isShowComment: function () {
-                return window.checkoutConfig.iwdOpcSettings.isShowComment;
+                return opcConfig ? opcConfig.isShowComment : undefined;
             },
             isShowDiscount: function () {
-                return window.checkoutConfig.iwdOpcSettings.isShowDiscount;
+                return opcConfig ? opcConfig.isShowDiscount : undefined;
             },
             isShowSubscribe: function () {
-                return window.checkoutConfig.iwdOpcSettings.isShowSubscribe;
+                return opcConfig ? opcConfig.isShowSubscribe : undefined;
             },
             isReloadShippingOnDiscount: function () {
-                return window.checkoutConfig.iwdOpcSettings.isReloadShippingOnDiscount;
+                return opcConfig ? opcConfig.isReloadShippingOnDiscount : undefined;
             },
             isSubscribeByDefault: function () {
-                return window.checkoutConfig.iwdOpcSettings.isSubscribeByDefault;
+                return opcConfig ? opcConfig.isSubscribeByDefault : undefined;
             },
             getQuoteId: function () {
                 return quoteData.entity_id;

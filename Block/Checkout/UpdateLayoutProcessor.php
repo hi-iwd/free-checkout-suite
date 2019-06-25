@@ -7,6 +7,7 @@ use Magento\Customer\Model\AttributeMetadataDataProvider;
 use Magento\Ui\Component\Form\AttributeMapper;
 use Magento\Checkout\Block\Checkout\AttributeMerger;
 use Magento\Checkout\Model\Session\Proxy as CheckoutSession;
+use IWD\Opc\Helper\Data as OpcHelper;
 
 class UpdateLayoutProcessor implements LayoutProcessorInterface
 {
@@ -17,17 +18,21 @@ class UpdateLayoutProcessor implements LayoutProcessorInterface
     public $merger;
     public $checkoutSession;
     public $quote = null;
+    public $opcHelper;
 
     public function __construct(
         AttributeMetadataDataProvider $attributeMetadataDataProvider,
         AttributeMapper $attributeMapper,
         AttributeMerger $merger,
-        CheckoutSession $checkoutSession
-    ) {
+        CheckoutSession $checkoutSession,
+        OpcHelper $opcHelper
+    )
+    {
         $this->attributeMetadataDataProvider = $attributeMetadataDataProvider;
         $this->attributeMapper = $attributeMapper;
         $this->merger = $merger;
         $this->checkoutSession = $checkoutSession;
+        $this->opcHelper = $opcHelper;
     }
 
     public function getQuote()
@@ -48,12 +53,15 @@ class UpdateLayoutProcessor implements LayoutProcessorInterface
     public function process($jsLayout)
     {
         $this->jsLayout = $jsLayout;
-        $this->updateOnePage();
-        $this->updateShipping();
-        $this->processAddressFields();
-        $this->updatePayment();
-        $this->updateLoginButton();
-        $this->updateTotals();
+        if ($this->opcHelper->isCheckoutPage()) {
+            $this->updateOnePage();
+            $this->updateShipping();
+            $this->processAddressFields();
+            $this->updatePayment();
+            $this->updateLoginButton();
+            $this->updateTotals();
+        }
+
         return $this->jsLayout;
     }
 
@@ -617,16 +625,19 @@ class UpdateLayoutProcessor implements LayoutProcessorInterface
                                             ],
                                             'children' => [
                                                 'subtotal' => [
+                                                    'component' => 'Magento_Tax/js/view/checkout/summary/subtotal',
                                                     'config' => [
                                                         'template' => 'IWD_Opc/summary/totals/subtotal'
                                                     ],
                                                 ],
                                                 'shipping' => [
+                                                    'component' => 'Magento_Tax/js/view/checkout/summary/shipping',
                                                     'config' => [
                                                         'template' => 'IWD_Opc/summary/totals/shipping'
                                                     ],
                                                 ],
                                                 'grand-total' => [
+                                                    'component' => 'Magento_Tax/js/view/checkout/summary/grand-total',
                                                     'displayArea' => 'grand-total',
                                                     'config' => [
                                                         'template' => 'IWD_Opc/summary/totals/grand-total'
@@ -692,6 +703,7 @@ class UpdateLayoutProcessor implements LayoutProcessorInterface
                                                     ],
                                                     'children' => [
                                                         'subtotal' => [
+                                                            'component' => 'Magento_Tax/js/view/checkout/summary/item/details/subtotal',
                                                             'config' => [
                                                                 'template' => 'IWD_Opc/summary/item/details/subtotal'
                                                             ],
@@ -733,6 +745,8 @@ class UpdateLayoutProcessor implements LayoutProcessorInterface
         ['grand-total']['config']['template'] = 'IWD_Opc/summary/grand-total';
         $this->jsLayout['components']['checkout']['children']['sidebar']['children']['summary']['children']
         ['grand-total']['displayArea'] = 'grand-total-head';
+        $this->jsLayout['components']['checkout']['children']['sidebar']['children']['summary']['children']
+        ['grand-total']['component'] = 'Magento_Tax/js/view/checkout/summary/grand-total';
         $this->setComponent($sidebar);
     }
 

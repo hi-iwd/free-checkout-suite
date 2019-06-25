@@ -27,6 +27,7 @@ define([
             paymentGroupsList: ko.observable([]),
             defaultGroupTitle: $t('Select a new payment method'),
             paymentRenderersMap: {
+                iwd_saved_credit_card: 'IWD_Opc/js/view/payment/methods-renderers/iwd_saved_credit_card',
                 free: 'IWD_Opc/js/view/payment/methods-renderers/free-method',
                 checkmo: 'IWD_Opc/js/view/payment/methods-renderers/checkmo-method',
                 banktransfer: 'IWD_Opc/js/view/payment/methods-renderers/banktransfer-method',
@@ -57,7 +58,8 @@ define([
                 payflowpro: 'IWD_Opc/js/view/payment/methods-renderers/payflowpro-method',
                 paypal_billing_agreement: 'IWD_Opc/js/view/payment/methods-renderers/paypal-billing-agreement',
 
-                iwd_applepay: 'IWD_Opc/js/view/payment/methods-renderers/apple_pay'
+                iwd_applepay: 'IWD_Opc/js/view/payment/methods-renderers/apple_pay',
+                opg_square: 'IWD_Opc/js/view/payment/methods-renderers/opg_square'
             },
             paymentImagesMap: {
                 braintree_paypal: 'paypal',
@@ -96,7 +98,7 @@ define([
             this.optionsRenderCallback = setTimeout(function () {
                 var select = $('#' + uid);
                 if (select.length) {
-                    select.decorateSelect();
+                    select.decorateSelectCustom();
                 }
             }, 0);
         },
@@ -150,9 +152,42 @@ define([
         },
 
         selectPaymentMethod: function (obj, event, method) {
+			//console.log(obj);
             if (!!event.originalEvent) {
+				//console.log(method);
                 if (method) {
+					if (document.getElementById('minicart-amazon-pay-button') !=null) {
+					 document.getElementById('minicart-amazon-pay-button').style.display = 'none';	
+					}
+					if (document.getElementById('purchaseorder-form') !=null) {
+					  document.getElementById('purchaseorder-form').style.display = 'block';	
+					}
+					  $(".payment-method _active").show();
+					  	
                     $('.payment-method input[value="' + method + '"]').first().click();
+					if(method=="braintree"){
+					
+                   $("#braintree_cc_number").addClass("braintree-hosted-fields-focused");				  
+                   document.getElementById('co-transparent-form-braintree').style.display = 'block';					
+					}
+				if(method=="amazon_payment"){      
+                 $('#OffAmazonPaymentsWidgets0').trigger('click');                       				
+		         $(".payment-method _active").hide();
+				 if (document.getElementById('co-transparent-form-braintree') !=null) {
+					document.getElementById('co-transparent-form-braintree').style.display = 'none';	
+					}
+			 if (document.getElementById('purchaseorder-form') !=null) {
+					document.getElementById('purchaseorder-form').style.display = 'none';	
+					}
+           				 if (document.getElementById('minicart-amazon-pay-button') !=null) {
+					 document.getElementById('minicart-amazon-pay-button').style.display = 'block';
+					}
+	       	
+					 
+					
+			
+				}
+
                 } else {
                     selectPaymentMethodAction(null);
                 }

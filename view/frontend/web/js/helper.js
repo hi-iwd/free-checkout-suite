@@ -1,4 +1,4 @@
-define(['jquery', 'underscore'], function ($, _) {
+define(['iwdOpcSelectize', 'jquery', 'underscore', 'uiRegistry'], function (selectize, $, _, registry) {
     (function ($, window, document) {
 
         var pluginName = "textareaAutoSize";
@@ -979,7 +979,77 @@ define(['jquery', 'underscore'], function ($, _) {
     })($);
 
     (function ($, window, document) {
-        $.fn.decorateSelect = function () {
+        $.fn.decorateSelect = function (showEmptyOption, disableSearch) {
+            if (typeof showEmptyOption === 'undefined') { showEmptyOption = false; }
+            if (typeof disableSearch === 'undefined') { disableSearch = false; }
+            var $select = $(this),
+                $uiObject = registry.get('uid=' + $select.attr('id')),
+                $emptyOptions = $select.find('option[value=""]'),
+                $text = '';
+
+            if ($uiObject && $uiObject.indexedOptions['']) {
+                $text = $uiObject.indexedOptions['']['label'];
+            } else if ($emptyOptions.length) {
+                $text = $emptyOptions.first().text();
+            }
+
+            if ($emptyOptions.length) {
+                var $newEmptyOption = $('<option/>').attr('value', '').text($text);
+                var currentVal = $select.val();
+
+                if (!currentVal) {
+                    $newEmptyOption.prop('selected', true);
+                }
+
+                $emptyOptions.remove();
+                $select.prepend($newEmptyOption);
+            }
+
+            $select.change(function(){
+                $select = $(this);
+
+                if ($select && $select[0] && $select[0].selectize) {
+                    $select[0].selectize.addItem($select.val(), true);
+                }
+            }).selectize({
+                selectOnTab: true,
+                persist: false,
+                placeholder: $text,
+                allowEmptyOption: showEmptyOption,
+                disableSearch: disableSearch,
+                onChange: function() {
+                    var value = this.$input.val(),
+                        changed = this.$input.html(),
+                        elements = $("select[name='" + this.$input.attr('name') +"']");
+
+                    this.$input.val('');
+                    this.$input.val(value);
+
+                    this.$input.get(0).indeterminate = true;
+                    if ("createEvent" in document) {
+                        var c_event = document.createEvent("HTMLEvents");
+                        c_event.initEvent("change", false, true);
+                        this.$input.get(0).dispatchEvent(c_event);
+                    } else {
+                        this.$input.get(0).fireEvent("onchange");
+                    }
+
+                    if (elements.length > 1) {
+                        elements.each(function() {
+                            $(this).html(changed);
+                        });
+                    }
+
+                    this.$input.trigger('change');
+                }
+            });
+
+            $('.selectize-input input').addClass('input-text');
+
+            return this;
+        };
+
+        $.fn.decorateSelectCustom = function() {
             var select = this;
             var parent = select.parent();
             if (select.find('option').length) {
@@ -1077,6 +1147,7 @@ define(['jquery', 'underscore'], function ($, _) {
                         newSelect.scrollbar();
                     }
                 }
+                select.hide();
             } else {
                 parent.find('.iwd_opc_select_container').scrollbar('destroy');
                 parent.find('.iwd_opc_select_container').remove();

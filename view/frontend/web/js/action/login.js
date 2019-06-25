@@ -3,9 +3,10 @@ define(
         'jquery',
         'mage/storage',
         'Magento_Ui/js/model/messageList',
-        'Magento_Customer/js/customer-data'
+        'Magento_Customer/js/customer-data',
+        'Magento_Checkout/js/model/full-screen-loader'
     ],
-    function ($, storage, globalMessageList, customerData) {
+    function ($, storage, globalMessageList, customerData, fullScreenLoader) {
         'use strict';
         var callbacks = [],
             action = function (loginData, redirectUrl, isGlobal, messageContainer, emailObj) {
@@ -33,6 +34,7 @@ define(
                             callback(loginData);
                         });
                         customerData.invalidate(['customer']);
+                        fullScreenLoader.startLoader();
                         if (redirectUrl) {
                             window.location.href = redirectUrl;
                         } else if (response.redirectUrl) {

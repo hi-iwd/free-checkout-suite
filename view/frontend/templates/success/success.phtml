@@ -37,7 +37,7 @@ $isShowRegistrationForm = $block->isShowRegistrationForm();
                     <?php if ($block->getCanViewOrder() && $block->getCanPrintOrder()) : ?>
                         <div class="iwd_opc_universal_wrapper iwd_success_page_info">
                             <?php /* @escapeNotVerified */
-                            echo __('<a href="%1" target="_blank" class="print">Print receipt</a>', $block->getPrintUrl()) ?>
+                            echo __('<a href="%1" target="_blank" class="printReceipt">Print receipt</a>', $block->getPrintUrl()) ?>
                         </div>
                     <?php endif; ?>
                     <div class="iwd_opc_universal_wrapper">

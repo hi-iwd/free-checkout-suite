@@ -69,7 +69,7 @@ class Success extends CheckoutSuccess
     protected function _toHtml()
     {
         if ($this->opcHelper->isShowSuccessPage() &&
-            $this->opcHelper->isEnable()) {
+            $this->opcHelper->isEnable() && $this->opcHelper->isModuleOutputEnabled('IWD_Opc')) {
             $layout = $this->getLayout();
             $layout->getBlock('checkout.registration');
             $layout->unsetElement('checkout.registration');

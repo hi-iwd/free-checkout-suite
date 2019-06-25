@@ -1,8 +1,9 @@
 define([
     'underscore',
     'uiRegistry',
-    'IWD_Opc/js/form/element/select'
-], function (_, registry, Select) {
+    'IWD_Opc/js/form/element/select',
+    'IWD_Opc/js/model/default-post-code-resolver'
+], function (_, registry, Select, defaultPostCodeResolver) {
     'use strict';
 
     return Select.extend({
@@ -13,6 +14,13 @@ define([
             }
         },
 
+        initialize: function () {
+            this._super()
+                .update(registry.get(this.parentName + '.' + 'country_id').initialValue)
+                .switchRequiredPlaceholder(this.validation['required-entry']);
+            return this;
+        },
+
         /**
          * @param {String} value
          */
@@ -21,14 +29,19 @@ define([
                 option;
 
             if (!value || !country) {
-                return;
+                return this;
             }
 
             var options = country.indexedOptions;
             option = options[value];
+            if (option) {
+                defaultPostCodeResolver.setUseDefaultPostCode(!option['is_zipcode_optional']);
+            }
+
             if (this.skipValidation) {
                 this.validation['required-entry'] = false;
                 this.required(false);
+                this.switchRequiredPlaceholder(false);
             } else {
                 if (option && !option['is_region_required']) {
                     this.error(false);
@@ -38,7 +51,10 @@ define([
                 }
 
                 this.required(!!option['is_region_required']);
+                this.switchRequiredPlaceholder(!!option['is_region_required']);
             }
+
+            return this;
         },
 
         /**
@@ -56,13 +72,34 @@ define([
 
                 this._super(value, field);
 
-                if (option && option['is_region_visible'] === false) {
-                    // hide select and corresponding text input field if region must not be shown for selected country
-                    this.setVisible(false);
+                if (option && (option['is_region_required'] || option['is_region_visible'])) {
+                    var hasRegionOptions = false;
 
-                    if (this.customEntry) {
-                        this.toggleInput(false);
+                    var regions = [];
+
+                    if (country.source.dictionaries) {
+                        regions = country.source.dictionaries.region_id;
+                    } else {
+                        regions = this.initialOptions;
                     }
+
+                    for (var i = 0; i < regions.length; i++) {
+                        if (regions[i].country_id == value) {
+                            hasRegionOptions = true;
+                            break;
+                        }
+                    }
+
+                    if (hasRegionOptions) {
+                        this.setVisible(true);
+                        this.toggleInput(false);
+                    } else {
+                        this.setVisible(false);
+                        this.toggleInput(true);
+                    }
+                } else {
+                    this.setVisible(false);
+                    this.toggleInput(false);
                 }
             }
         }

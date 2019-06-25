@@ -24,6 +24,13 @@ define([
         placeholder: '${ $.$data.placeholder }'
     };
 
+    /**
+     * Parses incoming options, considers options with undefined value property
+     *     as caption
+     *
+     * @param  {Array} nodes
+     * @return {Object}
+     */
     function parseOptions(nodes, captionValue) {
         var caption,
             value;
@@ -35,9 +42,9 @@ define([
                 if (_.isUndefined(caption)) {
                     caption = node.label;
                 }
-            } else {
-                return node;
             }
+
+            return node;
         });
 
         return {
@@ -96,16 +103,20 @@ define([
     return Abstract.extend({
         defaults: {
             customName: '${ $.parentName }.${ $.index }_input',
-            elementTmpl: 'IWD_Opc/form/element/select'
+            elementTmpl: 'IWD_Opc/form/element/select',
+            caption: '',
+            options: []
         },
+
         optionsRenderCallback: 0,
 
-        decorateSelect: function (uid) {
+        decorateSelect: function (uid, showEmptyOption) {
+            if (typeof showEmptyOption === 'undefined') { showEmptyOption = false; }
             clearTimeout(this.optionsRenderCallback);
             this.optionsRenderCallback = setTimeout(function () {
                 var select = $('#' + uid);
                 if (select.length) {
-                    select.decorateSelect();
+                    select.decorateSelect(showEmptyOption);
                 }
             }, 0);
         },
@@ -119,7 +130,7 @@ define([
             this._super();
 
             if (this.customEntry) {
-                this.initInput();
+                registry.get(this.name, this.initInput.bind(this));
             }
 
             if (this.filterBy) {
@@ -162,7 +173,7 @@ define([
 
             this.initialOptions = this.options;
 
-            this.observe('options')
+            this.observe('options caption')
                 .setOptions(this.options());
 
             return this;
@@ -211,7 +222,7 @@ define([
                 return option && option.value;
             }
 
-            if (!this.caption) {
+            if (!this.caption()) {
                 return findFirst(this.options);
             }
         },
@@ -225,6 +236,7 @@ define([
          */
         filter: function (value, field) {
             var source = this.initialOptions,
+                $select = $('#' + this.uid),
                 result;
 
             field = field || this.filterBy.field;
@@ -234,6 +246,23 @@ define([
             });
 
             this.setOptions(result);
+
+            if ($select.length) {
+                var $selectize = $select[0].selectize;
+
+                if ($selectize) {
+                    $selectize.clearOptions();
+
+                    _.each(result, function($option) {
+                        if ($option.value) {
+                            $selectize.addOption({text: $option.label, value: $option.value})
+                        }
+                    });
+
+                    $selectize.refreshOptions(false);
+                    $selectize.refreshItems();
+                }
+            }
         },
 
         /**
@@ -256,14 +285,20 @@ define([
          * @returns {Object} Chainable
          */
         setOptions: function (data) {
-            var isVisible;
+            var captionValue = this.captionValue || '',
+                result = parseOptions(data, captionValue),
+                isVisible;
 
-            this.indexedOptions = indexOptions(data);
+            this.indexedOptions = indexOptions(result.options);
 
-            this.options(data);
+            this.options(result.options);
+
+            if (!this.caption()) {
+                this.caption(result.caption);
+            }
 
             if (this.customEntry) {
-                isVisible = !!data.length;
+                isVisible = !!result.options.length;
 
                 this.setVisible(isVisible);
                 this.toggleInput(!isVisible);
@@ -298,11 +333,72 @@ define([
          * @returns {Object} Chainable.
          */
         clear: function () {
-            var value = this.caption ? '' : findFirst(this.options);
+            var value = this.caption() ? '' : findFirst(this.options);
 
             this.value(value);
 
             return this;
+        },
+
+        /**
+         * Initializes observable properties of instance.
+         *
+         * @returns {Object} Chainable.
+         */
+        setInitialValue: function () {
+            if (_.isUndefined(this.value()) && !this.default) {
+                this.clear();
+            }
+
+            return this._super();
+        },
+
+        switchRequiredPlaceholder: function (required) {
+            if (typeof required === 'undefined') {
+                required = true;
+            }
+
+            if (this.indexedOptions && this.indexedOptions['']) {
+                var $this = this,
+                    $select = $('#' + this.uid),
+                    $message = this.modifyRequiredMessage(this.indexedOptions['']['label'], required);
+
+                this.indexedOptions['']['label'] = $message;
+
+                registry.get(this.customName, function (input) {
+                    var $input = $('#' + input.uid),
+                        $message = $this.modifyRequiredMessage(input.placeholder, required);
+
+                    input.placeholder = $message;
+
+                    if ($input.length) {
+                        $input.attr('placeholder', $message);
+                    }
+                });
+
+                if ($select.length) {
+                    $select.children('option[value=""]').text($message);
+                    var $selectize = $select[0].selectize;
+
+                    if ($selectize) {
+                        $selectize.settings.placeholder = $message;
+                        $selectize.updatePlaceholder();
+                    }
+                }
+            }
+
+            return this;
+        },
+
+        modifyRequiredMessage: function (message, required) {
+            if (required && !message.endsWith(' *')) {
+                message = message + ' *';
+            }
+            else if (!required) {
+                message = message.replace(/ \*$/, '');
+            }
+
+            return message;
         }
     });
 });

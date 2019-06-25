@@ -3,7 +3,14 @@
  * @var $block IWD\Opc\Block\Onepage
  */
 ?>
-<?php $isVirtual = $block->getQuote()->isVirtual() ?>
+<?php //$isVirtual = $block->getQuote()->isVirtual() ?>
+<?php
+/**
+ * @var $checkoutSession \Magento\Checkout\Model\Session\Proxy
+ */
+$checkoutSession = \Magento\Framework\App\ObjectManager::getInstance()
+    ->get(\Magento\Checkout\Model\Session\Proxy::class);
+$isVirtual = $checkoutSession->getQuote()->isVirtual() ?>
 <div class="iwd_opc_clear"></div>
 <div id="checkout-loader" data-role="checkout-loader" class="loading-mask" data-mage-init='{"checkoutLoader": {}}'>
     <div class="loader"></div>
@@ -57,8 +64,84 @@
             ], function (url, iwdBlockLoader) {
                 iwdBlockLoader();
                 return url.setBaseUrl('<?php /* @escapeNotVerified */ echo $block->getBaseUrl();?>');
-            })
+            });
+		
+              
         </script>
+	
+    </div>
+		
+		<?php  
+		$objectManager =  \Magento\Framework\App\ObjectManager::getInstance(); 
+          $moduleManager = $objectManager->get('\Magento\Framework\Module\Manager');
+		
+		if($moduleManager->isEnabled('Amazon_Login')){ ?>
+		 <div class="amazon-button-container" id="minicart-amazon-pay-button" style="display:none;">
+                   <div class="amazon-button-container centered-button" style="margin-left:45%;">
+    <div class="amazon-button-container__cell">
+        <div id="PayWithAmazon-<?php echo $block->getJsId() ?>" class="login-with-amazon" data-mage-init='{"amazonButton": {"buttonType": "PwA"}}'></div>
+    </div>
+
+    <div class="amazon-button-container__cell">
+        <div class="field-tooltip toggle">
+            <span class="field-tooltip-action action-help" data-bind="mageInit: {'dropdown':{'activeClass': '_active'}}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></span>
+            <div class="field-tooltip-content" data-target="dropdown" aria-hidden="true"><?php /* @noEscape */  echo __('Are you an Amazon customer? Pay now with address and payment details stored in your Amazon account.'); ?></div>
+        </div>
     </div>
 </div>
+
+                </div>
+		<?php  } ?>
+
+	
+	
+
+</div>
+<script>
+require([
+    "jquery",
+    "jquery/ui"
+], function($){
+
+    $.extend(true, $, {
+        calendarConfig: {
+            dayNames: ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"],
+            dayNamesMin: ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"],
+            monthNames: ["January","February","March","April","May","June","July","August","September","October","November","December"],
+            monthNamesShort: ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"],
+            infoTitle: "About the calendar",
+            firstDay: 0,
+            closeText: "Close",
+            currentText: "Go Today",
+            prevText: "Previous",
+            nextText: "Next",
+            weekHeader: "WK",
+            timeText: "Time",
+            hourText: "Hour",
+            minuteText: "Minute",
+            dateFormat: $.datepicker.RFC_2822,
+            showOn: "button",
+            showAnim: "",
+            changeMonth: true,
+            changeYear: true,
+            buttonImageOnly: null,
+            buttonImage: null,
+            showButtonPanel: true,
+            showOtherMonths: true,
+            showWeek: false,
+            timeFormat: '',
+            showTime: false,
+            showHour: false,
+            showMinute: false,
+            serverTimezoneSeconds: 1521082614,
+            serverTimezoneOffset: 0,
+            yearRange: '1918:2118'
+        }
+    });
+
+enUS = {"m":{"wide":["January","February","March","April","May","June","July","August","September","October","November","December"],"abbr":["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"]}}; // en_US locale reference
+
+});
+
+</script>
 <div class="iwd_opc_clear"></div>

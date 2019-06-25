@@ -29,6 +29,7 @@ class PaymentMethodManagement
         $result = $proceed($cartId, $method);
         $this->saveCommentToSession($method);
         $this->saveSubscribeToSession($method);
+
         return $result;
     }
 

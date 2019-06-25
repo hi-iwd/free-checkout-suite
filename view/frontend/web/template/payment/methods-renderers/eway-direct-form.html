@@ -13,7 +13,8 @@
         <form class="form" id="co-transparent-form" action="#" method="post" data-bind="mageInit: {
             'transparent':{
                 'context': context()
-            }, 'validation':[]}">
+            }, 'validation':[]}, attr: {id: 'co-transparent-form-'+ getCode()},
+            attr: {id: 'co-transparent-form-'+ getCode()}">
             <!-- ko template: 'IWD_Opc/payment/methods-renderers/cc-form' --><!-- /ko -->
         </form>
         <div class="payment-method-billing-address">

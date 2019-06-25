@@ -18,22 +18,6 @@ define(
             setPaymentMethods: function (methods) {
                 var self = this,
                     freeMethod;
-                if (quote.isRestrictPaymentEnable()) {
-                    var customerGroupId = quote.getCustomerGroupId().toString();
-                    var restrictedPaymentMethods = quote.getRestrictedPaymentMethods();
-                    if (customerGroupId && restrictedPaymentMethods) {
-                        methods = _.filter(methods, function (method) {
-                            var isAvailable = false;
-                            if (typeof(restrictedPaymentMethods[method.method]) !== 'undefined') {
-                                if (restrictedPaymentMethods[method.method].indexOf(customerGroupId) !== -1) {
-                                    isAvailable = true;
-                                }
-                            }
-
-                            return isAvailable;
-                        });
-                    }
-                }
 
                 freeMethod = _.find(methods, function (method) {
                     return method.method === freeMethodCode;
@@ -55,14 +39,30 @@ define(
                     self = this;
                 _.each(methodList(), function (method) {
                     if (self.isFreeAvailable && (
-                            quote.totals().grand_total <= 0 && method.method === freeMethodCode ||
-                            quote.totals().grand_total > 0 && method.method !== freeMethodCode
-                        ) || !self.isFreeAvailable
+                        quote.totals().grand_total <= 0 && method.method === freeMethodCode ||
+                        quote.totals().grand_total > 0 && method.method !== freeMethodCode
+                    ) || !self.isFreeAvailable
                     ) {
                         methods.push(method);
                     }
                 });
-
+                if (methods.length === 1 && methods[0].method === "free") {
+                    var selectObject = document.getElementById("iwd_opc_payment_method_select");
+                    if (selectObject != null) {
+                        for (var i = 0; i < selectObject.length; i++) {
+                            if (selectObject.options[i].value.indexOf('braintree_cc_vault') >= 0)
+                                selectObject.remove(i);
+                        }
+                    }
+                }
+                var code = {};
+                jQuery("#iwd_opc_payment_method_select > option").each(function () {
+                    if (code[this.text]) {
+                        jQuery(this).remove();
+                    } else {
+                        code[this.text] = this.value;
+                    }
+                });
                 return methods;
             }
         };

@@ -46,9 +46,6 @@ class ExtendedCheckoutConfigProvider implements ConfigProviderInterface
     public function getSettings()
     {
         $settings = [];
-        $settings['restrictedPaymentMethods'] = $this->opcHelper->getRestrictPaymentMethods();
-        $settings['isRestrictPaymentEnable'] = $this->opcHelper->isRestrictPaymentEnable();
-        $settings['restrictedPaymentMethods'] = $this->opcHelper->getRestrictPaymentMethods();
         $settings['defaultShippingMethod'] = $this->opcHelper->getDefaultShippingMethod();
         $settings['defaultPaymentMethod'] = $this->opcHelper->getDefaultPaymentMethod();
         $settings['isReloadShippingOnDiscount'] = $this->opcHelper->isReloadShippingOnDiscount();
@@ -66,6 +63,8 @@ class ExtendedCheckoutConfigProvider implements ConfigProviderInterface
         $settings['isShowLoginButton'] = $this->opcHelper->isShowLoginButton();
         $settings['forgotPasswordUrl'] = $this->urlBuilder->getUrl('onepage/index/forgotpasswordpost');
         $settings['logoutUrl'] = $this->urlBuilder->getUrl('customer/account/logout');
+        $settings['displayAllMethods'] = $this->opcHelper->getDisplayAllMethods();
+
         return $settings;
     }
 }
